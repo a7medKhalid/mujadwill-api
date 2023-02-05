@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework import permissions
 
 
-from .helpers.ImportSections import importSectionsFunction
+from .helpers.Imports import importSectionsFunction
+from .helpers.Imports import importInstructorsFunction
 
 from .helpers.GeneticAlgorithm import GeneticAlgorithmClass
 from .helpers.Fitness import FitnessEnum
@@ -15,12 +16,20 @@ from .models import *
 from .serializers import *
 from random import randint
 
-class upload_sections(APIView):
+class import_sections(APIView):
     
     # upload sections csv file
     def post(self, request, format=None):
         
         importSectionsFunction(request.FILES['file'])
+        return Response(status=status.HTTP_201_CREATED)
+
+class import_instructors(APIView):
+    
+    # upload instructors csv file
+    def post(self, request, format=None):
+        
+        importInstructorsFunction(request.FILES['file'])
         return Response(status=status.HTTP_201_CREATED)
 
 class generate_schedules(APIView):
@@ -114,4 +123,21 @@ class generate_schedules(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
+class get_schedules(APIView):
+    # get schedules
+    def get(self, request, format=None):
+        schedules = Schedule.objects.all()
+        serializer = ScheduleSerializer(schedules, many=True)
+        return Response(serializer.data)
+
+class get_schedule(APIView):
+    # get schedule
+    def get(self, request, schedule_id, format=None):
         
+        # download the schedule file
+        schedule = Schedule.objects.get(id=schedule_id)
+        fileName = schedule.fileName
+        file = open(fileName, 'r')
+        response = Response(file.read())
+        return response
+
