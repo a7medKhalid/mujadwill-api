@@ -18,10 +18,17 @@ class Section(models.Model):
     start_time = models.IntegerField()
     end_time = models.IntegerField()
     days_type = models.CharField(max_length=10)
-    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, null=True)
 
 
     def __str__(self):
         return self.course_symbol + " " + self.section
+
+class Schedule(models.Model):
+    fileName = models.CharField(max_length=100)
+    isAccepted = models.BooleanField(default=False)
+    conflict_fitness = models.IntegerField(default=0)
+    fullLoad_fitness = models.IntegerField(default=0)
+    fourDays_fitness = models.IntegerField(default=0)
+    fitness = models.IntegerField(default=0)
 
 
