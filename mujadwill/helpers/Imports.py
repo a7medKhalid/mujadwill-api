@@ -28,6 +28,14 @@ def importSectionsFunction(file):
         
         # create section object
         section = Section(row['م'], row['المقرر'], row['رقمه'], row['الشعبة'], is_theory, row['عنوان المقرر'], row['البداية'], row['النهاية'], days_type)
+        
+        # check if the section is theory or lab
+        if not section.is_theory:
+            # get pervious section
+            theory_section = Section.objects.latest('id')
+            # set the theory section
+            section.theory_section = theory_section
+    
         section.save()
 
 def importInstructorsFunction(file):

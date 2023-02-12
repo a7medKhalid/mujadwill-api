@@ -20,7 +20,8 @@ class import_sections(APIView):
     
     # upload sections csv file
     def post(self, request, format=None):
-        
+        # drop all sections
+        Section.objects.all().delete()
         importSectionsFunction(request.FILES['file'])
         return Response(status=status.HTTP_201_CREATED)
 
@@ -78,7 +79,7 @@ class generate_schedules(APIView):
             counter = 0
             while True:
                 # count fitness
-                ranked_population, fitness, conflict_fitness, fulload_fitness, fourDays_fitness = G.calculateFitness(population)
+                ranked_population, fitness, conflict_fitness, fulload_fitness, fourDays_fitness, lab_fitness = G.calculateFitness(population)
 
                 # check if the fitness is better than the best fitness
                 if fitness > best_fitness:
@@ -87,6 +88,8 @@ class generate_schedules(APIView):
                     best_conflict_fitness = conflict_fitness
                     best_fullLoad_fitness = fulload_fitness 
                     best_fourDays_fitness = fourDays_fitness
+                    best_lab_fitness = lab_fitness
+
                     
                 # check if the fitness is 100%
                 if fitness == (3 * len(sections_list)):
@@ -107,7 +110,8 @@ class generate_schedules(APIView):
             best_conflict_fitness = best_conflict_fitness / (FitnessEnum.CONFLICT.value * len(sections_list))
             best_fullLoad_fitness = best_fullLoad_fitness / (FitnessEnum.FULL_LOAD.value * len( sections_list))
             best_fourDays_fitness = best_fourDays_fitness / (FitnessEnum.FOUR_DAYS.value * len(sections_list))
-
+            lab_sections_count = Section.objects.filter(is_theory=0).count()
+            best_lab_fitness = best_lab_fitness / (FitnessEnum.LAB.value * lab_sections_count)
             # save the best chromosome as csv file in Schedules folder
 
             fileName =  'Schedule-' + str(randint(0, 10000)) + '.csv'
@@ -117,7 +121,7 @@ class generate_schedules(APIView):
                 file.write(str(section.id) + ',' + str(section.course_title) + ',' + str(section.instructor.name) + ',' + str(section.days_type) + ',' + str(section.start_time) + ',' + str(section.end_time) + '\n')
             file.close()
 
-            schedule = Schedule.objects.create(fileName=fileName, fitness=best_fitness, conflict_fitness=best_conflict_fitness, fullLoad_fitness=best_fullLoad_fitness, fourDays_fitness=best_fourDays_fitness)
+            schedule = Schedule.objects.create(fileName=fileName, fitness=best_fitness, conflict_fitness=best_conflict_fitness, fullLoad_fitness=best_fullLoad_fitness, fourDays_fitness=best_fourDays_fitness, lab_fitness=best_lab_fitness)
             schedule.save()
 
 

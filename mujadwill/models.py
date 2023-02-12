@@ -18,6 +18,7 @@ class Section(models.Model):
     start_time = models.IntegerField()
     end_time = models.IntegerField()
     days_type = models.CharField(max_length=10)
+    theory_section = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='+')
 
 
     def __str__(self):
@@ -26,9 +27,9 @@ class Section(models.Model):
 class Schedule(models.Model):
     fileName = models.CharField(max_length=100)
     isAccepted = models.BooleanField(default=False)
-    conflict_fitness = models.IntegerField(default=0)
-    fullLoad_fitness = models.IntegerField(default=0)
-    fourDays_fitness = models.IntegerField(default=0)
-    fitness = models.IntegerField(default=0)
-
+    fitness = models.FloatField(default=0)
+    conflict_fitness = models.FloatField(default=0)
+    fullLoad_fitness = models.FloatField(default=0)
+    fourDays_fitness = models.FloatField(default=0)
+    lab_fitness = models.FloatField(default=0)
 

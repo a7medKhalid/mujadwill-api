@@ -50,8 +50,28 @@ class Helpers:
     
     def calculateLab(self, section, instructorSections):
         instructorSections.append(section)
-        instructor = section.instructor
-        instructorHours = 0
+
+        if not section.is_theory:
+
+            # find the theory section from the instructor sections
+            theory_section = section.theory_section
+            is_assigned = False
+            for sec in instructorSections:
+                if sec == theory_section:
+                    is_assigned = True
+                    break
+
+            if is_assigned:
+                return FitnessEnum.LAB.value
+            else:
+                return 0
+        
+        return 0
+
+            
+
+
+
 
 
 class GeneticAlgorithmClass:
@@ -77,6 +97,7 @@ class GeneticAlgorithmClass:
         conflict_fitness = 0
         fullLoad_fitness = 0
         fourDays_fitness = 0
+        lab_fitness = 0
 
         counter = 0
 
@@ -114,6 +135,10 @@ class GeneticAlgorithmClass:
             fourDays_fitness += fourDays
 
             # 4. The instructor is assigned a class and with its lab.
+            lab = Helpers.calculateLab(self, section, instructorSections)
+            fitness += lab
+            section_fitness += lab
+            lab_fitness += lab
 
             # 5. The instructor has his prefrences
 
@@ -123,7 +148,7 @@ class GeneticAlgorithmClass:
             
             counter += 1
             
-        return ranked_population, fitness, conflict_fitness, fullLoad_fitness, fourDays_fitness
+        return ranked_population, fitness, conflict_fitness, fullLoad_fitness, fourDays_fitness, lab_fitness
 
     def crossover(self, ranked_population, instructors_list):
 
