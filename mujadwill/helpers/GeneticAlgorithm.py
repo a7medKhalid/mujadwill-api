@@ -118,31 +118,25 @@ class GeneticAlgorithmClass:
             # constraints
             # 1. instructor has no conflicts
             conflict = Helpers.calculateConflict(self, section, instructorSections)
-            fitness += conflict
             section_fitness += conflict
             conflict_fitness += conflict
 
             # 2. instructor has full load
             fullLoad = Helpers.calculateFullLoad(self, section, instructorSections)
-            fitness += fullLoad
             section_fitness += fullLoad
             fullLoad_fitness += fullLoad
 
             # 3. instructor has no more than 4 days
             fourDays = Helpers.calculateFourDays(self, section, instructorSections)
-            fitness += fourDays
             section_fitness += fourDays
             fourDays_fitness += fourDays
 
             # 4. The instructor is assigned a class and with its lab.
             lab = Helpers.calculateLab(self, section, instructorSections)
-            fitness += lab
             section_fitness += lab
             lab_fitness += lab
 
-            # 5. The instructor has his prefrences
-
-
+            fitness += section_fitness
 
             ranked_population.append((section, section_fitness))
             

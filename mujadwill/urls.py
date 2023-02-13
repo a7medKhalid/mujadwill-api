@@ -7,6 +7,5 @@ urlpatterns = [
 
     path('generate-schedules/', views.generate_schedules.as_view(), name='generate_schedules'),
     path('get-schedules/', views.get_schedules.as_view(), name='get_schedules'),
-    path('get_schedule/', views.get_schedule.as_view(), name='get_schedule'),
-
+    path('get_schedule/<int:id>/', views.get_schedule.as_view(), name='get_schedule'),
 ]

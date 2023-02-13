@@ -44,9 +44,7 @@ def importInstructorsFunction(file):
 
     # loop through each row
     for index, row in data.iterrows():
-        if row['المقرر'] != 'CCSW':
-            continue
-
+        
         # add instructor to database
-        instructor = Instructor(name=row['اسم المدرس'], max_hours=row['الحد الأقصى لعدد الساعات'])
+        instructor = Instructor(name=row['اسم المدرس'], max_hours=row['الحد الأقصى لعدد الساعات'], university_id=row['الرقم الجامعي'])
         instructor.save()

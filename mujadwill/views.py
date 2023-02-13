@@ -26,6 +26,9 @@ class import_sections(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 class import_instructors(APIView):
+
+    # drop all instructors
+    Instructor.objects.all().delete()
     
     # upload instructors csv file
     def post(self, request, format=None):
@@ -44,27 +47,12 @@ class generate_schedules(APIView):
         sections_list = Section.objects.all()
 
         # get all instructors
-        instructors_list = []
-        instructors_list.append(Instructor(1, 'محمد', 10))
-        instructors_list.append(Instructor(2, 'عبدالله', 10))
-        instructors_list.append(Instructor(3, 'علي', 10))
-        instructors_list.append(Instructor(4, 'حسن', 10))
-        instructors_list.append(Instructor(5, 'زيد', 10))
-        instructors_list.append(Instructor(6, 'باسل', 10))
-        instructors_list.append(Instructor(7, 'ياسر', 10))
-        instructors_list.append(Instructor(8, 'محمود', 10))
-        instructors_list.append(Instructor(10, 'وليد', 10))
-        instructors_list.append(Instructor(11, 'معاذ', 10))
-        instructors_list.append(Instructor(12, 'برقان', 10))
-        instructors_list.append(Instructor(13, 'فيصل', 10))
-        instructors_list.append(Instructor(14, 'مشاري', 10))
-        instructors_list.append(Instructor(15, 'عمر', 10))
-        instructors_list.append(Instructor(16, 'عبيد', 10))
-        instructors_list.append(Instructor(17, 'حسنين', 10))
-        instructors_list.append(Instructor(18, 'مؤيد', 10))
-        instructors_list.append(Instructor(19, 'احمد', 10))
-        instructors_list.append(Instructor(20, 'فارس', 10))
-        instructors_list.append(Instructor(21, 'فراس', 10))
+        instructors_list = Instructor.objects.all()
+
+        if len(sections_list) == 0 or len(instructors_list) == 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Please import sections and instructors first.'})
+        
+        
 
         for i in range(0,4):
             
@@ -92,8 +80,8 @@ class generate_schedules(APIView):
 
                     
                 # check if the fitness is 100%
-                if fitness == (3 * len(sections_list)):
-                    break
+                # if fitness == (3 * len(sections_list)):
+                #     break
 
                 # crossover
                 population = G.crossover(ranked_population, instructors_list)
@@ -106,17 +94,19 @@ class generate_schedules(APIView):
                 if counter == 1000:
                     break
 
-            best_fitness = best_fitness / ((FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value) * len(sections_list))
+            # best_fitness = best_fitness / ((FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value) * len(sections_list))
             best_conflict_fitness = best_conflict_fitness / (FitnessEnum.CONFLICT.value * len(sections_list))
             best_fullLoad_fitness = best_fullLoad_fitness / (FitnessEnum.FULL_LOAD.value * len( sections_list))
             best_fourDays_fitness = best_fourDays_fitness / (FitnessEnum.FOUR_DAYS.value * len(sections_list))
             lab_sections_count = Section.objects.filter(is_theory=0).count()
             best_lab_fitness = best_lab_fitness / (FitnessEnum.LAB.value * lab_sections_count)
+
+            best_fitness = ((best_conflict_fitness * FitnessEnum.CONFLICT.value) + (best_fullLoad_fitness * FitnessEnum.FULL_LOAD.value) + (best_fourDays_fitness * FitnessEnum.FOUR_DAYS.value) + (best_lab_fitness * FitnessEnum.LAB.value)) / (FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value + FitnessEnum.LAB.value)
             # save the best chromosome as csv file in Schedules folder
 
             fileName =  'Schedule-' + str(randint(0, 10000)) + '.csv'
-            file = open(fileName, 'w')
-            file.write('section_id, instructor_id, day, time, room\n')
+            file = open(fileName, 'w', encoding='utf-8-sig')
+            file.write('id,course_title,instructor_name,days_type,start_time,end_time')
             for section in best_chromosome:
                 file.write(str(section.id) + ',' + str(section.course_title) + ',' + str(section.instructor.name) + ',' + str(section.days_type) + ',' + str(section.start_time) + ',' + str(section.end_time) + '\n')
             file.close()
@@ -136,10 +126,10 @@ class get_schedules(APIView):
 
 class get_schedule(APIView):
     # get schedule
-    def get(self, request, schedule_id, format=None):
+    def get(self, request, id, format=None):
         
         # download the schedule file
-        schedule = Schedule.objects.get(id=schedule_id)
+        schedule = Schedule.objects.get(id=id)
         fileName = schedule.fileName
         file = open(fileName, 'r')
         response = Response(file.read())
