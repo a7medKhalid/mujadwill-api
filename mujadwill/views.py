@@ -20,19 +20,19 @@ class import_sections(APIView):
     
     # upload sections csv file
     def post(self, request, format=None):
+
         # drop all sections
         Section.objects.all().delete()
         importSectionsFunction(request.FILES['file'])
         return Response(status=status.HTTP_201_CREATED)
 
 class import_instructors(APIView):
-
-    # drop all instructors
-    Instructor.objects.all().delete()
     
     # upload instructors csv file
     def post(self, request, format=None):
         
+        # drop all instructors
+        Instructor.objects.all().delete()
         importInstructorsFunction(request.FILES['file'])
         return Response(status=status.HTTP_201_CREATED)
 
@@ -130,6 +130,9 @@ class get_schedule(APIView):
         
         # download the schedule file
         schedule = Schedule.objects.get(id=id)
+
+        if schedule == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Schedule not found.'})
         fileName = schedule.fileName
         file = open(fileName, 'r')
         response = Response(file.read())
