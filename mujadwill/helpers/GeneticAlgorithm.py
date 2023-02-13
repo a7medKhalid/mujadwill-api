@@ -1,6 +1,7 @@
 import random
 
 from .Fitness import FitnessEnum
+from datetime import datetime
 
 
 class Helpers:
@@ -25,7 +26,8 @@ class Helpers:
         instructor = section.instructor
         instructorHours = 0
         for sec in instructorSections:
-            instructorHours += sec.end_time - sec.start_time
+
+            instructorHours += sec.hours
 
         if instructorHours > instructor.max_hours:
             return 0
@@ -145,9 +147,17 @@ class GeneticAlgorithmClass:
         return ranked_population, fitness, conflict_fitness, fullLoad_fitness, fourDays_fitness, lab_fitness
 
     def crossover(self, ranked_population, instructors_list):
+        
+        leastRank = FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value
+
+        
+
 
         # sort the ranked population by the rank
         ranked_population.sort(key=lambda x: x[1], reverse=True)
+
+        # get the best of the population that has least rank
+        best_population = [x for x in ranked_population if x[1] == leastRank]
 
         # get the best 50% of the population
         best_population = ranked_population[:int(len(ranked_population)/2)]
@@ -161,12 +171,14 @@ class GeneticAlgorithmClass:
             random_instructor = random.choice(instructors_list)
             section[0].instructor = random_instructor
 
+
         # remove the section rank from the list
         best_population = [x[0] for x in best_population]
         worst_population = [x[0] for x in worst_population]
         
         # add the best population to the worst population
         new_population = best_population + worst_population
+
 
         return new_population
 

@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
+from django.db.models import Sum
+
 
 
 from .helpers.Imports import importSectionsFunction
@@ -15,6 +17,7 @@ from .helpers.Fitness import FitnessEnum
 from .models import *
 from .serializers import *
 from random import randint
+from datetime import datetime
 
 class import_sections(APIView):
     
@@ -37,6 +40,7 @@ class import_instructors(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 class generate_schedules(APIView):
+
     # generate schedules
     def post(self, request, format=None):
 
@@ -106,9 +110,9 @@ class generate_schedules(APIView):
 
             fileName =  'Schedule-' + str(randint(0, 10000)) + '.csv'
             file = open(fileName, 'w', encoding='utf-8-sig')
-            file.write('id,course_title,instructor_name,days_type,start_time,end_time')
+            file.write('id,course_title,instructor_name,days_type,start_time,end_time,hours,\n')
             for section in best_chromosome:
-                file.write(str(section.id) + ',' + str(section.course_title) + ',' + str(section.instructor.name) + ',' + str(section.days_type) + ',' + str(section.start_time) + ',' + str(section.end_time) + '\n')
+                file.write(str(section.id) + ',' + str(section.course_title) + ',' + str(section.instructor.name) + ',' + str(section.days_type) + ',' + str(section.start_time) + ',' + str(section.end_time) + ',' + str(section.hours) + '\n')
             file.close()
 
             schedule = Schedule.objects.create(fileName=fileName, fitness=best_fitness, conflict_fitness=best_conflict_fitness, fullLoad_fitness=best_fullLoad_fitness, fourDays_fitness=best_fourDays_fitness, lab_fitness=best_lab_fitness)
@@ -137,4 +141,13 @@ class get_schedule(APIView):
         file = open(fileName, 'r')
         response = Response(file.read())
         return response
+
+class get_hours(APIView):
+    # get hours
+    def get(self, request, format=None):
+        sections_hours = Section.objects.all().aggregate(Sum('hours'))
+        instructors_hours = Instructor.objects.all().aggregate(Sum('max_hours'))
+
+        return Response({'sections_hours': sections_hours, 'instructors_hours': instructors_hours})
+
 

@@ -1,5 +1,8 @@
 import pandas as pd
 from ..models import Section, Instructor
+from datetime import datetime
+
+from math import ceil
 
 def importSectionsFunction(file):
      # import arabic xlsx file
@@ -25,9 +28,32 @@ def importSectionsFunction(file):
 
         # add section to database
 
+        try:
+            shu3bah = row['الشعبة']
+        except:
+            shu3bah = None
+
+        # if lab hours 1 else get real hours
+        if is_theory:
+            # count section hours
+            start_time = row['البداية']
+            end_time = row['النهاية']
+
+            startTime = datetime.strptime(str(int(start_time)), '%H%M').time()
+            endTime = datetime.strptime(str(int(end_time)), '%H%M').time() 
+            diff = datetime.combine(datetime.min, endTime) - datetime.combine(datetime.min, startTime)
+            diff = float((diff.total_seconds())) / 3600
+
+            days_count = len(days_type)
+            realHours = diff * days_count
+            realHours = ceil(realHours)
+
+
+        else:
+            realHours = 1
         
         # create section object
-        section = Section(row['م'], row['المقرر'], row['رقمه'], row['الشعبة'], is_theory, row['عنوان المقرر'], row['البداية'], row['النهاية'], days_type)
+        section = Section(row['م'], row['المقرر'], row['رقمه'], shu3bah, is_theory, row['عنوان المقرر'], row['البداية'], row['النهاية'], days_type, hours=realHours)
         
         # check if the section is theory or lab
         if not section.is_theory:
