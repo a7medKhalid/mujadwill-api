@@ -29,7 +29,10 @@ class Helpers:
 
             instructorHours += sec.hours
 
-        if instructorHours > instructor.max_hours:
+        high = instructor.max_hours + 2
+        low = instructor.max_hours - 2
+
+        if (int(instructorHours) > high) or (int(instructorHours) < low):
             return 0
         else:
             return FitnessEnum.FULL_LOAD.value
@@ -148,30 +151,35 @@ class GeneticAlgorithmClass:
 
     def crossover(self, ranked_population, instructors_list):
         
-        leastRank = FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value
-
-        
-
-
-        # sort the ranked population by the rank
-        ranked_population.sort(key=lambda x: x[1], reverse=True)
+        leastRank = FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value + FitnessEnum.LAB.value
 
         # get the best of the population that has least rank
         best_population = [x for x in ranked_population if x[1] == leastRank]
+        worst_population = [x for x in ranked_population if x[1] != leastRank]
+        worst_population.sort(key=lambda x: x[1], reverse=True)
 
-        # get the best 50% of the population
-        best_population = ranked_population[:int(len(ranked_population)/2)]
+        worst_population_to_replace = worst_population[int(len(worst_population)/2):]
 
-        # get the worst 50% of the population
-        worst_population = ranked_population[int(len(ranked_population)/2):]
+
+
+
+        # # sort the ranked population by the rank
+        # ranked_population.sort(key=lambda x: x[1], reverse=True)
+
+        # # get the best 50% of the population
+        # best_population = ranked_population[:int(len(ranked_population)/2)]
+
+        # # get the worst 50% of the population
+        # worst_population = ranked_population[int(len(ranked_population)/2):]
 
         # loop on worst population and swap instructors randmoly
-        for section in worst_population:
+        for section in worst_population_to_replace:
+
             # select random instructor
             random_instructor = random.choice(instructors_list)
             section[0].instructor = random_instructor
 
-
+        worst_population = worst_population_to_replace + worst_population[:int(len(worst_population)/2)]
         # remove the section rank from the list
         best_population = [x[0] for x in best_population]
         worst_population = [x[0] for x in worst_population]
