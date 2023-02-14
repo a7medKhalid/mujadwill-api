@@ -6,10 +6,17 @@ class Instructor(models.Model):
     name = models.CharField(max_length=100)
     max_hours = models.IntegerField()
     university_id =models.CharField(max_length=10)
+    secret_token = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
+class Preffernce(models.Model):
+    prefferd_time = models.CharField(max_length=10)
+    prefferd_days = models.CharField(max_length=10)
+    prefferd_subjects = models.CharField(max_length=100)
+
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='preffernces')
 
 class Section(models.Model):
     course_symbol = models.CharField(max_length=10)

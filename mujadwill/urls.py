@@ -10,4 +10,7 @@ urlpatterns = [
     path('get_schedule/<int:id>/', views.get_schedule.as_view(), name='get_schedule'),
 
     path('get-hours/', views.get_hours.as_view(), name='get_hours'),
+
+    path('add-preference/', views.add_preference.as_view(), name='add_preference'),
+    
 ]

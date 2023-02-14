@@ -1,6 +1,8 @@
 import pandas as pd
 from ..models import Section, Instructor
 from datetime import datetime
+import random
+import string
 
 from math import ceil
 
@@ -70,7 +72,7 @@ def importInstructorsFunction(file):
 
     # loop through each row
     for index, row in data.iterrows():
-        
+        random_token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         # add instructor to database
-        instructor = Instructor(name=row['اسم المدرس'], max_hours=row['الحد الأقصى لعدد الساعات'], university_id=row['الرقم الجامعي'])
+        instructor = Instructor(name=row['اسم المدرس'], max_hours=row['الحد الأقصى لعدد الساعات'], university_id=row['الرقم الجامعي'], secret_token=random_token)
         instructor.save()

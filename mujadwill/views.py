@@ -12,6 +12,8 @@ from .helpers.Imports import importInstructorsFunction
 from .helpers.GeneticAlgorithm import GeneticAlgorithmClass
 from .helpers.Fitness import FitnessEnum
 
+from .helpers.Mail import sendPrefrncesEmail
+
 
 
 from .models import *
@@ -37,6 +39,10 @@ class import_instructors(APIView):
         # drop all instructors
         Instructor.objects.all().delete()
         importInstructorsFunction(request.FILES['file'])
+
+        # send email to all instructors
+        sendPrefrncesEmail()
+
         return Response(status=status.HTTP_201_CREATED)
 
 class generate_schedules(APIView):
@@ -150,4 +156,18 @@ class get_hours(APIView):
 
         return Response({'sections_hours': sections_hours, 'instructors_hours': instructors_hours})
 
+from .models import Preffernce, Instructor
+class add_preference(APIView):
+    # add preference
+    def post(self, request, format=None):
+        secret_token = request.data['secret_token']
+        instructor = Instructor.objects.get(secret_token=secret_token)
 
+        if Instructor == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Instructor not found.'})
+        
+        preference = Preffernce.objects.create(instructor=instructor, prefferd_time=request.data['prefferd_time'], prefferd_days=request.data['prefferd_days'], prefferd_subjects=request.data['prefferd_subjects'])
+
+        preference.save()
+        
+        return Response(status=status.HTTP_201_CREATED)
