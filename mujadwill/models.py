@@ -7,6 +7,7 @@ class Instructor(models.Model):
     max_hours = models.IntegerField()
     university_id =models.CharField(max_length=10)
     secret_token = models.CharField(max_length=100, unique=True)
+    preference = models.OneToOneField('Preffernce', on_delete=models.CASCADE, null=True, blank=True, related_name='+') 
 
     def __str__(self):
         return self.name
@@ -41,4 +42,5 @@ class Schedule(models.Model):
     fullLoad_fitness = models.FloatField(default=0)
     fourDays_fitness = models.FloatField(default=0)
     lab_fitness = models.FloatField(default=0)
+    preference_fitness = models.FloatField(default=0)
 

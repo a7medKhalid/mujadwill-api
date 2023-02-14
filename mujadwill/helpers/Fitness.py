@@ -4,3 +4,4 @@ class FitnessEnum(Enum):
     FULL_LOAD = 2
     FOUR_DAYS = 1
     LAB = 1
+    PREFERENCE = 1

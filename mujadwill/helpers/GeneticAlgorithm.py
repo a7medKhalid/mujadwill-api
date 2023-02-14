@@ -4,6 +4,7 @@ from .Fitness import FitnessEnum
 from datetime import datetime
 
 
+
 class Helpers:
     def calculateConflict(self, section, instructorSections):
         conflict = False
@@ -73,6 +74,36 @@ class Helpers:
         
         return 0
 
+    def calculatePreference(self, section, instructorSections):
+        instructor = section.instructor
+        instructorSections.append(section)
+        instructorHours = 0
+        
+        preffernce = instructor.preference
+
+        if preffernce is None:
+            return FitnessEnum.PREFERENCE.value
+        
+        for sec in instructorSections:
+            # check if sec time morning or night
+            if sec.start_time < 12:
+                time = 'morning'
+            else:
+                time = 'night'
+
+            preffers_subjects = preffernce.preferred_subjects.split(',')
+
+            isSubjectPreffered = False
+            for subject in preffers_subjects:
+                if subject == (sec.course_symbol + sec.course_id):
+                    isSubjectPreffered = True
+                    break
+        
+            
+            if (preffernce.preferred_time == time) or (preffernce.preferred_days == sec.days_type) or isSubjectPreffered:
+                return FitnessEnum.PREFERENCE.value
+            else:
+                return 0
             
 
 
@@ -103,6 +134,7 @@ class GeneticAlgorithmClass:
         fullLoad_fitness = 0
         fourDays_fitness = 0
         lab_fitness = 0
+        preference_fitness = 0
 
         counter = 0
 
@@ -141,17 +173,23 @@ class GeneticAlgorithmClass:
             section_fitness += lab
             lab_fitness += lab
 
+            # 5. Instructor has a preference
+            preference = Helpers.calculatePreference(self, section, instructorSections)
+            section_fitness += preference
+            preference_fitness += preference
+
+
             fitness += section_fitness
 
             ranked_population.append((section, section_fitness))
             
             counter += 1
             
-        return ranked_population, fitness, conflict_fitness, fullLoad_fitness, fourDays_fitness, lab_fitness
+        return ranked_population, fitness, conflict_fitness, fullLoad_fitness, fourDays_fitness, lab_fitness, preference_fitness
 
     def crossover(self, ranked_population, instructors_list):
         
-        leastRank = FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value + FitnessEnum.LAB.value
+        leastRank = FitnessEnum.CONFLICT.value + FitnessEnum.FULL_LOAD.value + FitnessEnum.FOUR_DAYS.value + FitnessEnum.LAB.value + FitnessEnum.PREFERENCE.value
 
         # get the best of the population that has least rank
         best_population = [x for x in ranked_population if x[1] == leastRank]

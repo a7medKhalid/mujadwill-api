@@ -17,8 +17,9 @@ class TestGenrateSchedules(TestCase):
         
         response = self.client.post('/api/generate-schedules/')
         self.assertEqual(response.status_code, 201)
-
+        
         schedule = Schedule.objects.first()
+        print('fitness: ', schedule.fitness, 'conflict_fitness: ', schedule.conflict_fitness, 'fullLoad_fitness: ', schedule.fullLoad_fitness, 'fourDays_fitness: ', schedule.fourDays_fitness, 'lab_fitness: ', schedule.lab_fitness, 'preference_fitness: ', schedule.preference_fitness)
         self.assertEqual(schedule.fitness, 1.0)
         self.assertEqual(schedule.conflict_fitness, 1.0)
         self.assertEqual(schedule.fullLoad_fitness, 1.0)
